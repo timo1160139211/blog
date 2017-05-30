@@ -1,0 +1,56 @@
+前几天服务器网络出了点问题，决定把数据库先备份搭建到本地，
+一、备份数据库
+
+备份数据库使用的是mysql自带的工具mysqldump :
+
+# cd /var/lib/mysql (进入到MySQL库目录，根据自己的MySQL的安装情况调整目录)
+
+# mysqldump -uusr_name -p db_name > db_name_backup.sql
+
+
+二、还原数据库
+
+还原数据库，这里提供两种方式登录之前和登录之后：
+
+
+1 登录时直接导入备份文件：(这样需要你在之前就创建有一个叫db_name的数据库)
+
+# mysql -uroot -p db_name<db_name_backup.sql
+
+
+2登录之后导入备份文件：
+
+# mysql -uroot -p
+
+# use db_name;
+
+# source  /path/db_name_backup.sql;
+
+
+
+InnoDB引擎的使用
+
+InnoDB引擎提供行级锁和外键约束,支持ACID兼容的事务.(类似于Prostgresql)
+
+
+显示引擎：
+
+# show engines;
+
+
+更改为InnoDB引擎:
+
+方法0x01：将默认引擎修改为InnoDB
+
+my.ini 中 mysqld 后面添加default-storage-engine=InnoDB ，然后 # service mysql restart
+
+
+方法0x02：
+
+建表时指定 CREATE TABLE tb( .. )  ENGINE=InnoDB ;
+
+建表后修改 ALTER TABLE tb ENGINE = InnoDB;
+
+
+
+

@@ -1,0 +1,65 @@
+
+
+
+前几天因为某些原因，服务器需要回滚，MySQL数据库恢复了之后需要重新配置，如下错误是某个恢复配置的环节出错造成的，研究发现 是授权user的时候 犯错造成的。
+
+
+Java.sql.SQLException: null, message from server: "Host '**.***.**.***'' is not allowed to connect to this MySQL server"
+
+出现这种错误的原因是 你使用远程登录的用户不允许从远程登录(远程等不上)，
+
+
+解决方法：
+
+在远程的服务器上 使用命令行登录mysql.
+
+一：命令行授权：
+
+[sql] view plain copy
+
+    mysql > grant all privileges on db_name.* to usr_name@'%' identified by 'pwd';  
+
+其中，db_name 是数据库名， usr_name 用户名， pwd 密码。'%' 为通配符。
+
+[sql] view plain copy
+
+    mysql > flush privileges ;  
+
+
+或者
+
+二：更改用户表：
+[sql] view plain copy
+
+    mysql > use mysql;  
+
+[sql] view plain copy
+
+    mysql > update user set host = '%' where user = 'usr_name';;  
+
+其中， usr_name 用户名，'%' 为通配符。
+
+当然也可以在work bench , phpMyAdmin等可视化界面操作。
+
+
+ps:
+
+远程登录服务器还需打开3306短端口：
+
+# iptables -I INPUT 4 -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
+# service iptables save
+
+mysql配置文件接收所有ip链接：
+
+# vi etc/mysql/my.cnf      //部分系统路径不同
+
+将绑定ip改为
+
+bind-address = 0.0.0.0
+
+
+
+
+
+
+
